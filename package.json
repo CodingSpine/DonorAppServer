@@ -1,0 +1,23 @@
+{
+  "name": "donorappserver",
+  "version": "1.0.0",
+  "description": "Server code for Guardians of Dreams' Donor App",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CodingSpine/DonorAppServer.git"
+  },
+  "author": "CodingSpine",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/CodingSpine/DonorAppServer/issues"
+  },
+  "homepage": "https://github.com/CodingSpine/DonorAppServer#readme",
+  "dependencies": {
+    "express": "^4.16.3"
+  }
+}

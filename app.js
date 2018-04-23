@@ -8,6 +8,33 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 const loginRouter = require('./routes/login');
 
+const mongoose = require('mongoose');
+// const MongoClient = require('mongodb').MongoClient;
+
+var uri = "mongodb://app:nEshKXCPxp9vqj7o@\
+donorapp-dev-shard-00-00-e7utu.mongodb.net:27017,\
+donorapp-dev-shard-00-01-e7utu.mongodb.net:27017,\
+donorapp-dev-shard-00-02-e7utu.mongodb.net:27017/test?ssl=true&replicaSet=DonorApp-Dev-shard-0&authSource=admin";
+const connect = mongoose.connect(uri, {
+    userMongoClient: true
+});
+connect.then((db) => {
+    
+}, (err) => {
+    console.log(err);
+});
+// MongoClient.connect(uri, function(err, client) {
+//    const collection = client.db("DonorApp-Demo").collection("Login");
+//    // perform actions on the collection object
+//    collection.insertOne(
+//        {"name":"Ray"},
+//         (error, result) => {
+//             console.log(error);
+//             console.log(result);
+//         });
+//    client.close();
+// });
+
 var app = express();
 
 // view engine setup

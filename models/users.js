@@ -7,6 +7,11 @@ const userSchema = new Schema({
         required: true,
         unique: true
     },
+    countryCode:{
+        type: String,
+        required: true,
+        default: '+91'
+    }
     firstName: {
         type: String,
         required: true

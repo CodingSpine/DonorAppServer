@@ -2,6 +2,9 @@ const express = require('express');
 
 const loginRouter = express.Router();
 const UserCredentials = require('../model/UserCredentials');
+const Users = require('../model/users');
+const passport = require('passport');
+const authenticate = require('../authenticate');
 
 // loginRouter.route('/')
 // .all()
@@ -9,7 +12,7 @@ const UserCredentials = require('../model/UserCredentials');
 // .post()
 // .put()
 // .delete();'
-loginRouter.post('/', (req, res, next) => {
+loginRouter.post('/', authenticate.verifyUser, (req, res, next) => {
     if (!req.session.user){
         var authHeader = req.headers.authorization;
         if(!authHeader){
@@ -61,6 +64,70 @@ loginRouter.post('/', (req, res, next) => {
         res.setHeader('Content-Type', 'text/plain');
         res.end('Already authenticated');
     }
+});
+
+loginRouter.post('/signup', (req, res, next) => {
+    UserCredentials.register(new UserCredentials({username: req.body.username}),
+        req.body.password,
+        (credentialerr, userCredential) => {
+            if (credentialerr){
+                res.statusCode = 500;
+                res.setHeader('Content-Type', 'application/json');
+                res.json({err: err});
+                return;
+            }
+            else{
+                Users.findOne({phone: req.body.username})
+                .then((user) =>{
+                    var error;
+                    if(user !== null){
+                        error = new Error('User Credential created but User already exists. Contact Admin.');
+                        error.status = 403;
+                        next(error);
+                    }
+                    else{
+                        var userAttributes = {};
+                        if (req.body.firstName){
+                            userAttributes.firstName = req.body.firstName;
+                        }
+                        else {
+                            error = new Error('First Name is required.');
+                            next(error);
+                        }
+                        if (req.body.email){
+                            userAttributes.email = req.body.email;
+                        }
+                        else {
+                            error = new Error('Email is required.');
+                            next(error);
+                        }
+                        if(req.body.countryCode){
+                            userAttributes.countryCode = req.body.countryCode;
+                        }
+                        if (req.body.lastName){
+                            userAttributes.lastName = req.body.lastName;
+                        }
+                        var newUser = Users.create(userAttributes);
+                        res.status = 201;
+                        res.setHeader('Content-Type', 'application/json');
+                        res.json({success: true, status: 'Registered!', user: newUser});
+                    }
+                })
+                .catch((err) =>{
+                    res.statusCode = 500;
+                    res.setHeader('Content-Type', 'application/json');
+                    res.json({err: err});
+                    return;
+                });
+            }
+        });
+});
+
+loginRouter.post('login', passport.authenticate('local'), (req, res) => {
+    var token = authenticate.getToken({_id: req.user._id});
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'application/json');
+    res.json({success: true, token: token, status: 'Success'});
 });
 
 loginRouter.get('/logout', (req, res) =>{

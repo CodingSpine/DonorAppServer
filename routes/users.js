@@ -2,10 +2,11 @@ var express = require('express');
 const usersRouter = express.Router();
 const mongoose = require('mongoose');
 const Users = require('../models/users');
+const authenticate = require('../authenticate');
 
 /* GET users listing. */
 usersRouter.route('/')
-.get('/', function(req, res, next) {
+.get(authenticate.verifyUser, function(req, res, next) {
     Users.find({})
         .then((users) =>{
             res.statusCode = 200;
@@ -18,7 +19,7 @@ usersRouter.route('/')
             next(error);
         });
 })
-.post('/', function(req, res, next){
+.post(authenticate.verifyUser, function(req, res, next){
     Users.create(req.body)
         .then((user) => {
             console.log(user);
@@ -34,7 +35,7 @@ usersRouter.route('/')
 })
 .put('/', function(req, res, next){
     res.statusCode = 403;
-    res.end('POST operation not allowed on /users');
+    res.end('PUT operation not allowed on /users');
 })
 .delete('/', function(req, res, next){
     res.statusCode = 403;
@@ -47,7 +48,7 @@ usersRouter.route(':/userId')
     rest.setHeader('Content-Type', 'application/json');
     next();
 })
-.get(function(req, res, next){
+.get(authenticate.verifyUser, function(req, res, next){
     Users.findById(req.params.userId)
         .then((user) => {
             console.log(user);
@@ -65,7 +66,7 @@ usersRouter.route(':/userId')
     res.statusCode = 403;
     res.end('POST operation not allowed on /users/'+req.params.userId);
 })
-.put(function(req, res, next){
+.put(authenticate.verifyUser, function(req, res, next){
     Users.findByIdAndUpdate(req.params.userId, {
         $set: req.body;
     }, {new : true})
@@ -82,7 +83,7 @@ usersRouter.route(':/userId')
         });
 
 })
-.delete(function(req, res, next){
+.delete(authenticate.verifyUser, function(req, res, next){
     Users.findByIdAndRemove(req.params.userId)
         .then((user) => {
             console.log(user);

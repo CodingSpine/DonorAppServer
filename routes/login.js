@@ -1,6 +1,7 @@
 const express = require('express');
 
 const loginRouter = express.Router();
+const cors = require('./cors');
 const UserCredentials = require('../model/UserCredentials');
 const Users = require('../model/users');
 const passport = require('passport');
@@ -12,7 +13,7 @@ const authenticate = require('../authenticate');
 // .post()
 // .put()
 // .delete();'
-loginRouter.post('/', authenticate.verifyUser, (req, res, next) => {
+loginRouter.post('/', cors.cors, authenticate.verifyUser, (req, res, next) => {
     if (!req.session.user){
         var authHeader = req.headers.authorization;
         if(!authHeader){
@@ -66,7 +67,7 @@ loginRouter.post('/', authenticate.verifyUser, (req, res, next) => {
     }
 });
 
-loginRouter.post('/signup', (req, res, next) => {
+loginRouter.post('/signup', cors.cors, (req, res, next) => {
     UserCredentials.register(new UserCredentials({username: req.body.username}),
         req.body.password,
         (credentialerr, userCredential) => {
@@ -123,14 +124,31 @@ loginRouter.post('/signup', (req, res, next) => {
         });
 });
 
-loginRouter.post('login', passport.authenticate('local'), (req, res) => {
-    var token = authenticate.getToken({_id: req.user._id});
-    res.statusCode = 200;
-    res.setHeader('Content-Type', 'application/json');
-    res.json({success: true, token: token, status: 'Success'});
+loginRouter.post('login',cors.cors, (req, res, next) => {
+    passport.authenticate('local', (err, user, info) =>{
+        if (err){
+            return next(err);
+        }
+        if (!user){
+            res.statusCode = 401;
+            res.setHeader('Content-Type', 'application/json');
+            res.json({success: false, status: 'Login Unsuccessful.', err: info});
+        }
+        req.logIn(user, (err) =>{
+            if (err){
+                res.statusCode = 401;
+                res.setHeader('Content-Type', 'application/json');
+                res.json({success: false, status: 'Login Unsuccessful.', err: 'Could not log in user.'});
+            }
+            var token = authenticate.getToken({_id: req.user._id});
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.json({success: true, token: token, status: 'Success'});
+        });
+    })(req, res, next);
 });
 
-loginRouter.get('/logout', (req, res) =>{
+loginRouter.get('/logout', cors.cors, (req, res) =>{
     if(req.session){
         req.session.destroy();
         res.clearCookie('session-id');
@@ -142,6 +160,25 @@ loginRouter.get('/logout', (req, res) =>{
         err.status = 403;
         next(err);
     }
+});
+
+//// NOTE: next function may need to be removed, since it wasn't there in the tutorial.
+loginRouter.get('/checkJWTToken', cors.cors, (req, res, next) =>{
+    passport.authenticate('jwt', {session: false}, (err, user, info) =>{
+        if(err){
+            return next(err);
+        }
+        if (!user){
+            res.statusCode = 401;
+            res.setHeader('Content-Type', 'application/json');
+            return res.json({status: 'JWT Invalid', success: false, err: info});
+        }
+        else{
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            return res.json({status: 'JWT Valid', success: true, user});
+        }
+    })(req, res);
 });
 
 module.exports = loginRouter;

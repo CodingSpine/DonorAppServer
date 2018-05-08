@@ -1,12 +1,14 @@
 var express = require('express');
 const usersRouter = express.Router();
 const mongoose = require('mongoose');
+const cors = require('./cors');
 const Users = require('../models/users');
 const authenticate = require('../authenticate');
 
 /* GET users listing. */
 usersRouter.route('/')
-.get(authenticate.verifyUser, function(req, res, next) {
+.options(cors.cors, (req, res) => {})
+.get(cors.cors, authenticate.verifyUser, function(req, res, next) {
     Users.find({})
         .then((users) =>{
             res.statusCode = 200;
@@ -19,7 +21,7 @@ usersRouter.route('/')
             next(error);
         });
 })
-.post(authenticate.verifyUser, function(req, res, next){
+.post(cors.cors, authenticate.verifyUser, function(req, res, next){
     Users.create(req.body)
         .then((user) => {
             console.log(user);
@@ -48,7 +50,7 @@ usersRouter.route(':/userId')
     rest.setHeader('Content-Type', 'application/json');
     next();
 })
-.get(authenticate.verifyUser, function(req, res, next){
+.get(cors.cors, authenticate.verifyUser, function(req, res, next){
     Users.findById(req.params.userId)
         .then((user) => {
             console.log(user);
@@ -66,7 +68,7 @@ usersRouter.route(':/userId')
     res.statusCode = 403;
     res.end('POST operation not allowed on /users/'+req.params.userId);
 })
-.put(authenticate.verifyUser, function(req, res, next){
+.put(cors.cors, authenticate.verifyUser, function(req, res, next){
     Users.findByIdAndUpdate(req.params.userId, {
         $set: req.body;
     }, {new : true})
@@ -83,7 +85,7 @@ usersRouter.route(':/userId')
         });
 
 })
-.delete(authenticate.verifyUser, function(req, res, next){
+.delete(cors.cors, authenticate.verifyUser, function(req, res, next){
     Users.findByIdAndRemove(req.params.userId)
         .then((user) => {
             console.log(user);

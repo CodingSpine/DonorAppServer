@@ -7,7 +7,7 @@ var session = require('express-session');
 var fileStore = require('session-file-store')(session);
 var passport = require('passport');
 var authenticate = require('./authenticate');
-var config = require('config');
+var config = require('./config');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -15,11 +15,9 @@ const loginRouter = require('./routes/login');
 
 const mongoose = require('mongoose');
 // const MongoClient = require('mongodb').MongoClient;
-
+debugger;
 var uri = config.mongoUrl;
-const connect = mongoose.connect(uri, {
-    userMongoClient: true
-});
+const connect = mongoose.connect(uri);
 connect.then((db) => {
 
 }, (err) => {

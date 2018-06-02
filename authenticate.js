@@ -1,6 +1,6 @@
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
-const UserCredentials = require('../models/userCredentials');
+const UserCredentials = require('./models/userCredentials');
 const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
 const jwt = require('jsonwebtoken');
@@ -34,7 +34,7 @@ exports.jwtPassport = passport.use(new JwtStrategy(opts,
                 return done(null, false);
             }
         });
-    };
+    }
 ));
 
 

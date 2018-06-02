@@ -2,8 +2,9 @@ const express = require('express');
 
 const loginRouter = express.Router();
 const cors = require('./cors');
-const UserCredentials = require('../model/UserCredentials');
-const Users = require('../model/users');
+const mongoose = require('mongoose');
+const UserCredentials = mongoose.model('UserCredential');
+const Users = require('../models/users');
 const passport = require('passport');
 const authenticate = require('../authenticate');
 
@@ -124,7 +125,7 @@ loginRouter.post('/signup', cors.cors, (req, res, next) => {
         });
 });
 
-loginRouter.post('login',cors.cors, (req, res, next) => {
+loginRouter.post('/login',cors.cors, (req, res, next) => {
     passport.authenticate('local', (err, user, info) =>{
         if (err){
             return next(err);

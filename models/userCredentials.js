@@ -5,6 +5,6 @@ const passportLocalMongoose = require('passport-local-mongoose');
 const userCredentialsSchema = new Schema({});
 userCredentialsSchema.plugin(passportLocalMongoose);
 
-var UserCredentials = mongoose.model('UserCredential', userSchema);
+var UserCredentials = mongoose.model('UserCredential', userCredentialsSchema);
 
 module.exports = UserCredentials;

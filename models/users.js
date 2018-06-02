@@ -11,7 +11,7 @@ const userSchema = new Schema({
         type: String,
         required: true,
         default: '+91'
-    }
+    },
     firstName: {
         type: String,
         required: true

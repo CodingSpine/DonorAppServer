@@ -35,11 +35,11 @@ usersRouter.route('/')
             next(error);
         });
 })
-.put('/', function(req, res, next){
+.put(function(req, res, next){
     res.statusCode = 403;
     res.end('PUT operation not allowed on /users');
 })
-.delete('/', function(req, res, next){
+.delete(function(req, res, next){
     res.statusCode = 403;
     res.end('DELETE operation not allowed on /users');
 });
@@ -70,7 +70,7 @@ usersRouter.route(':/userId')
 })
 .put(cors.cors, authenticate.verifyUser, function(req, res, next){
     Users.findByIdAndUpdate(req.params.userId, {
-        $set: req.body;
+        $set: req.body
     }, {new : true})
         .then((user) => {
             console.log(user);
